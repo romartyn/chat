@@ -16,6 +16,10 @@
 
                     {{ __('You are logged in!') }}
                 </div>
+
+                <div class="card-footer">
+                    <a class="btn btn-primary" href="/chat">Go to Chat!</a>
+                </div>
             </div>
         </div>
     </div>

@@ -25,4 +25,14 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    /**
+     * The main inner page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function chat()
+    {
+        return view('chat');
+    }
 }
