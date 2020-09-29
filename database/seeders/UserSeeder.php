@@ -24,5 +24,14 @@ class UserSeeder extends Seeder
 			'updated_at' => date('Y-m-d H:i:s'),
 		]);
 
+		DB::table('users')->insert([
+			'name' => 'Юзер',
+			'email' => 'info@romartyn.ru',
+			'password' => bcrypt('nV9fI6iF4qF7qH7y'),
+			'role' => 'super',
+			'created_at' => date('Y-m-d H:i:s'),
+			'updated_at' => date('Y-m-d H:i:s'),
+		]);
+
 	}
 }

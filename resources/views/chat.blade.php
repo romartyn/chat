@@ -19,6 +19,7 @@
 @section('javascript')
 	<script>
 		let user = @json(\Auth::user());
+		let users = @json(\App\Models\User::query()->select('id','name')->get());
 	</script>
 	<script src="{{ mix('js/chat/index.js') }}"></script>
 @endsection
