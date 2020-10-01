@@ -18,7 +18,7 @@ let application = new Vue({
 let chat_div = document.getElementById('chat');
 
 if(chat_div){
-	application.$mount("#chat");
+	application.$mount(chat_div);
 } else {
 	application.$swal('No place to mount App, please provide some div#chat', '', 'error');
 }

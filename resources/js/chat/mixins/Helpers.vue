@@ -1,9 +1,44 @@
-
 <script>
     const dayjs = require('dayjs');
-
+// let DummyBlob = new Blob(['test text'], {type : 'text/plain'});
     export default {
         methods: {
+            $imgFromBlob: function(imageBlob) {
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext('2d');
+
+                // Create an image to render the blob on the canvas
+                var img = new Image();
+
+                // Once the image loads, render the img on the canvas
+                img.onload = function(){
+                    // Update dimensions of the canvas with the dimensions of the image
+                    canvas.width = this.width;
+                    canvas.height = this.height;
+
+                    // Draw the image
+                    ctx.drawImage(img, 0, 0);
+                };
+
+                // Crossbrowser support for URL
+                var URLObj = window.URL || window.webkitURL;
+
+                // Creates a DOMString containing a URL representing the object given in the parameter
+                // namely the original Blob
+                img.src = URLObj.createObjectURL(imageBlob);
+
+                return img;
+            },
+            $blobToBase64: function(blob, callback) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var dataUrl = reader.result;
+                    // var base64 = dataUrl.split(',')[1];
+                    var base64 = dataUrl;
+                    callback(base64);
+                };
+                reader.readAsDataURL(blob);
+            },
             $dayjs: function (params) {
                 return dayjs(params);
             },
@@ -12,14 +47,6 @@
                 let name = names[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
 
                 return show_number ? number + " " + name : name;
-            },
-            $price_currency: function(price, _currency){
-                let currency = this.$store.state.cart.currencies[ _currency || this.$store.state.currency ];
-                return currency.sign + ' ' + (price / currency.rate).toFixed(2);
-            },
-            $price: function (number, currency = true) {
-                number = parseInt(number);
-                return number.toLocaleString() + (currency ? " ₽" : "");
             },
             $dayWeekNames: function () {
                 return {
@@ -43,7 +70,6 @@
                     "Вс",
                 ];
             }
-
         }
     }
 </script>

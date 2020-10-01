@@ -1,14 +1,27 @@
 #!/usr/bin/env node
+
+const dayjs = require('dayjs');
+const isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
+const weekOfYear = require('dayjs/plugin/weekOfYear');
+const isoWeek = require('dayjs/plugin/isoWeek');
+dayjs.extend(isoWeek)
+dayjs.extend(weekOfYear);
+dayjs.extend(isSameOrBefore);
+let log_date_format = 'YYYY-MM-DD HH:mm:ss';
+function log_time(){
+	return dayjs().format(log_date_format);
+}
+
 var WebSocketServer = require('websocket').server;
 var http = require('http');
  
 var server = http.createServer(function(request, response) {
-	console.log((new Date()) + ' Received request for ' + request.url);
+	console.log(log_time() + ' Received request for ' + request.url);
 	response.writeHead(404);
 	response.end();
 });
 server.listen(8080, function() {
-	console.log((new Date()) + ' Server is listening on port 8080');
+	console.log(log_time() + ' Server is listening on port 8080');
 });
  
 wsServer = new WebSocketServer({
@@ -31,14 +44,14 @@ let connections = [];
  
 wsServer.on('request', function(request) {
 	if (!originIsAllowed(request.origin)) {
-	  // Make sure we only accept requests from an allowed origin
-	  request.reject();
-	  console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-	  return;
+		// Make sure we only accept requests from an allowed origin
+		request.reject();
+		console.log(log_time() + ' Connection from origin ' + request.origin + ' rejected.');
+		return;
 	}
 	
 	var connection = request.accept('echo-protocol', request.origin);
-	console.log((new Date()) + ' Connection accepted.');
+	console.log(log_time() + ' Connection accepted.');
 
 	connection.on('message', function(message) {
 		if (message.type === 'utf8') {
@@ -49,12 +62,16 @@ wsServer.on('request', function(request) {
 			});
 		} else if (message.type === 'binary') {
 			console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-			console.log(message);
+			// console.log(message);
 			// connection.sendBytes(message.binaryData);
+			let binaryData = message.binaryData;
+			connections.forEach(c => {
+				c.sendBytes(binaryData);
+			});
 		}
 	});
 	connection.on('close', function(reasonCode, description) {
-		console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+		console.log(log_time() + ' Peer ' + connection.remoteAddress + ' disconnected.');
 	});
 
 	connections.push(connection);
