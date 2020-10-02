@@ -17,6 +17,7 @@
 @endsection
 
 @section('javascript')
+	<script src="/assets/js/WebAudioRecorder.min.js"></script>
 	<script>
 		let user = @json(\Auth::user());
 		let users = @json(\App\Models\User::query()->select('id','name')->get());

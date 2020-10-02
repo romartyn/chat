@@ -12,10 +12,11 @@ function log_time(){
 	return dayjs().format(log_date_format);
 }
 
-var WebSocketServer = require('websocket').server;
-var http = require('http');
+const WebSocketServer = require('websocket').server;
+const http = require('http');
+const fs = require('fs'); 
  
-var server = http.createServer(function(request, response) {
+const server = http.createServer(function(request, response) {
 	console.log(log_time() + ' Received request for ' + request.url);
 	response.writeHead(404);
 	response.end();
@@ -31,16 +32,18 @@ wsServer = new WebSocketServer({
 	// facilities built into the protocol and the browser.  You should
 	// *always* verify the connection's origin and decide whether or not
 	// to accept it.
+	maxReceivedFrameSize: 1048576,
 	autoAcceptConnections: false
 });
+console.log(wsServer);
  
 function originIsAllowed(origin) {
 	// put logic here to detect whether the specified origin is allowed.
 	return true;
 }
 
-let messages = [];
-let connections = [];
+const messages = [];
+const connections = [];
  
 wsServer.on('request', function(request) {
 	if (!originIsAllowed(request.origin)) {
@@ -50,24 +53,23 @@ wsServer.on('request', function(request) {
 		return;
 	}
 	
-	var connection = request.accept('echo-protocol', request.origin);
+	const connection = request.accept('echo-protocol', request.origin);
 	console.log(log_time() + ' Connection accepted.');
 
 	connection.on('message', function(message) {
 		if (message.type === 'utf8') {
 			// console.log('Received Message: ' + message.utf8Data);
-			console.log(message);
+			console.log(JSON.parse(message.utf8Data));
 			connections.forEach(c => {
 				c.sendUTF(message.utf8Data);
 			});
 		} else if (message.type === 'binary') {
 			console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-			// console.log(message);
-			// connection.sendBytes(message.binaryData);
-			let binaryData = message.binaryData;
-			connections.forEach(c => {
-				c.sendBytes(binaryData);
-			});
+
+			const binaryData = message.binaryData;
+			// connections.forEach(c => {
+			// 	c.sendBytes(binaryData);
+			// });
 		}
 	});
 	connection.on('close', function(reasonCode, description) {
