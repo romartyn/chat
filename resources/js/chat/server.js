@@ -63,6 +63,7 @@ function editable (message, connection){
 
 const messages = [];
 const connections = [];
+const users = [];
  
 wsServer.on('request', function(request) {
 	if (!originIsAllowed(request.origin)) {
@@ -80,8 +81,14 @@ wsServer.on('request', function(request) {
 
 	connection.user_id = +parameters.query.user_id;
 
+	users.push({
+		id: +parameters.query.user_id,
+		name: parameters.query.user_name,
+	});
+
 	// send all previous history
-	connection.sendUTF(JSON.stringify(messages));
+	connection.sendUTF(JSON.stringify({messages}));
+	connection.sendUTF(JSON.stringify({users}));
 
 	connection.on('message', function(incoming) {
 		if (incoming.type === 'utf8') {

@@ -40,7 +40,7 @@ export const store = new Vuex.Store({
 			await context.commit('SET_USER', user || context.state.anonym);
 		},
 		FETCH_USERS: async (context) => {
-			users.push(context.state.anonym);
+			users.push(context.state.anonym);	console.log(users);
 			await context.commit('SET_USERS', users);
 		},
 		SET_MESSAGE: async (context, data) => {

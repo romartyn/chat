@@ -141,7 +141,8 @@
 				let client;
 				try {
 					let query = this.$buildQueryString({
-						user_id: this.user.id
+						user_id: this.user.id,
+						user_name: this.user.name,
 					});
 					client = new W3CWebSocket('ws://localhost:8080/?'+query, 'echo-protocol');
 				} catch (e) {
@@ -156,12 +157,17 @@
 				client.onclose = function() {
 					app.log('echo-protocol Client Closed');
 				};
-				client.onmessage = (incoming) => {
+				client.onmessage = async (incoming) => {
 					if (typeof incoming.data === 'string') {
 						let message = JSON.parse(incoming.data);
 
-						if(Array.isArray(message)){
-							message.forEach(m => this.messages.push(m));
+						console.log(message);
+						if(message.messages){
+							message.messages.forEach(m => this.messages.push(m));
+							return;
+						}
+						if(message.users && message.users.length){
+							await this.$store.commit('SET_USERS', message.users);
 							return;
 						}
 
