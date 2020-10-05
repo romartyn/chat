@@ -109,7 +109,13 @@ wsServer.on('request', function(request) {
 				message.time = +(new Date());
 				messages.push(message);
 			}
-			console.log(message);
+			console.log({
+				user_id: message.user_id,
+				text: message.text,
+				time: message.time,
+				uuid: message.uuid,
+				attaches: message.attaches.length,
+			});
 
 			connections.forEach(c => {
 				c.sendUTF(JSON.stringify(message));
