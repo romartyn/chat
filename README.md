@@ -1,61 +1,38 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Dark Chat
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## Установка
 
-## About Laravel
+Для работы требуется только установленные PHP (7.3.2) + NODE/NPM (12.16.3/6.14.4).
+После клонирования репозитория:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Создайте файл .env из .env.example.
+- Измените DB_DATABASE на полный абсолютный путь к пустому файлу для хранения базы данных SQLite.
+- Выполните в консоли из директории проекта пкоманды
+-- composer install
+-- php artisan migrate
+-- php artisan db:seed
+-- npm i
+-- npm run production
+- Для запуска WEB вервера
+-- php artisan serve
+- В соседнем окне консоли для запуска WS сервера
+-- node resources/js/chat/server.js
+- Далее запустите перейдите в браузере по адресу http://127.0.0.1:8000/ и наслаждайтесь общением.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Замечания
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Для авторизации используется Laravel, в остальном его роль минимальна.
 
-## Learning Laravel
+Анонимный вход поддерживается.
+Но аноним пока может назодиться только один, так как имеет один и тот же ай ди, не успел проработать этот момент.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+В качестве фронтенд фреймворка выбран Vue.JS, главным образом для того, чтобы проверить, как он себя поведёт в данном типе задач, плюс проработать компонентный подход.
+Думаю, без него можно добиться большей отзывчивости интерфейса.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Для записи звука с микрофора, как и предложено, выбран WebAudioRecorder.js, но лишь потому, что используумые кодеки правильно отработали в моём окружении. С точни зрения архитектуры данная бибилитека не оптимальна, так как не лежит в репозитории и требует костылей для простого подключения.
+Пробовал использовать mic-recorder-to-mp3, которая есть в NPM и имеет более приятный дизайн, но там проблемы с воспроизведением звука в некоторых браузерах.
 
-## Laravel Sponsors
+К сообщению можно прикрепить более одной звукозаписи.
+Так же, к сообщению можно прикрепить графику, если вставить из буфера обмена в поле текстового ввода.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Прикреплённые файлы отсылаются вместе с текстом одним сообщеним, что требует упаковки в Base64, что неоптимально для производительности на клиенте. Не успел по времени, но могу сделать отправку бинарных данных.
