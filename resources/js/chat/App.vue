@@ -1,26 +1,55 @@
 <template>
 	<div>
-		<div ref="chat_messsages" class="chat_messsages container pt-2">
-			<!-- <p v-for="(message,index) in messages">{{ message }}</p> -->
-			<chat-message :key="index" :message="message" v-for="(message,index) in messages"></chat-message>
+		<div
+			ref="chat_messsages"
+			class="chat_messsages container pt-2"
+		>
+			<chat-message
+				:key="index"
+				:message="message"
+				v-for="(message,index) in messages"
+			></chat-message>
 		</div>
-		<textarea
-			class="input_area"
-			v-model="message.text"
-			@paste="paste($event)"
-			@keydown="input_area_keydown($event)"
-		></textarea>
-		<attaches :attaches="message.attaches"></attaches>
-		<button class="btn btn-primary" @click="record">ЗАПИСЬ ЗВУКА</button>
+		<div class="container">
+			<div class="row">
+				<textarea
+					class="col-xs-8 col-md-8 input_area form-control"
+					v-model="message.text"
+					v-if="message"
+					@paste="paste($event)"
+					@keydown="input_area_keydown($event)"
+				></textarea>
+				<button
+					class="btn btn-primary col-xs-2 col-md-2"
+					style="font-size: x-large;"
+					@click="send"
+				>
+					<i class="fas fa-paper-plane"></i>
+				</button>
+				<button
+					class="btn btn-primary col-xs-2 col-md-2"
+					:class="{'btn-danger': !!recorder}"
+					style="font-size: x-large;"
+					@click="record"
+				>
+					<i class="fas fa-microphone"></i>
+				</button>
+			</div>
+		</div>
 
-		<!-- <audio ref="player" controls></audio> -->
+		<!-- <attaches
+			v-if="message"
+			:attaches="message.attaches"
+		></attaches> -->
 	</div>
 </template>
 
 <script>
+	import Vue from 'vue';
 	import ChatMessage from "./components/ChatMessage";
 	import Attaches from "./components/Attaches";
 	import { record } from "vmsg";
+	import voice from './components/voice.js';
 
 	export default {
 		components: {
@@ -31,154 +60,78 @@
 			return {
 				client: null,
 				messages: [],
-				message: this.new_message()
+				recorder: null
+			}
+		},
+		watch: {
+			messages: function(newValue){
+				// console.log(newValue.map(m => { return {...m}; }));
+				setTimeout(() => {
+					this.$refs.chat_messsages.scrollTop = this.$refs.chat_messsages.scrollHeight;
+				},10);
 			}
 		},
 		methods: {
 			record: function(){
-				var gumStream; 						//stream from getUserMedia()
-				var recorder; 						//WebAudioRecorder object
-				var input; 							//MediaStreamAudioSourceNode  we'll be recording
-				var encodingType; 					//holds selected encoding for resulting audio (file)
-				var encodeAfterRecord = true;       // when to encode
-				var constraints = { audio: true, video:false };
-				var audioContext; //new audio context to help us record
+				if(this.recorder){
+					this.recorder.finishRecording();
+					this.recorder = null;
+					return;
+				}
 
-				navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-					audioContext = new AudioContext();
-					gumStream = stream;
-					input = audioContext.createMediaStreamSource(stream);
-					encodingType = 'mp3';
+				voice.recorder((recorder) => {
+					this.recorder = recorder;
+				}, (blob) => {
+					this.$blobToBase64(blob, (base64url) => {
+						let base64data = base64url.split(',')[1];
+						let blobFromBase64 = this.$b64toBlob(base64data);
 
-					recorder = new WebAudioRecorder(input, {
-						workerDir: "/assets/js/", // must end with slash
-						encoding: encodingType,
-						numChannels:2, //2 is the default, mp3 encoding supports only 2
-						onEncoderLoading: function(recorder, encoding) {
-							// show "loading encoder..." display
-							console.log("Loading "+encoding+" encoder...");
-						},
-						onEncoderLoaded: function(recorder, encoding) {
-							// hide "loading encoder..." display
-							console.log(encoding+" encoder loaded");
-						}
+						this.message.attaches.push(base64url);
 					});
-
-					recorder.onComplete = function(recorder, blob) {
-						console.log("Encoding complete");
-
-						var url = URL.createObjectURL(blob);
-						console.log(blob,url);
-						// this.$refs.player.src = url;
-						// this.$refs.player.play();
-
-						this.$blobToBase64(blob,function(base64url){
-							// base64url = base64url.replace('audio/mp3','audio/mpeg');
-							let base64data = base64url.split(',')[1];
-							let blobFromBase64 = this.b64toBlob(base64data);
-							// console.log(
-							// 	base64url,
-							// 	blobFromBase64
-							// );
-							var _url = URL.createObjectURL(blobFromBase64);
-							this.message.attaches.push(base64url);
-
-							// this.$refs.player.src = _url;
-							// this.$refs.player.play();
-						}.bind(this));
-					}.bind(this);
-
-					recorder.setOptions({
-						timeLimit:120,
-						encodeAfterRecord:encodeAfterRecord,
-						ogg: {quality: 0.5},
-						mp3: {bitRate: 160}
-					});
-
-					recorder.startRecording();
-
-					setTimeout(() => {
-						recorder.finishRecording();
-					},10000);
-				}.bind(this)).catch(function(err) {
-					console.warn(err);
-				});
-			},
-			record_: function(){
-				console.log('record!');
-
-				const MicRecorder = require('mic-recorder-to-mp3');
-
-				// New instance
-				const recorder = new MicRecorder({
-					bitRate: 128
-				});
-				 
-				// Start recording. Browser will request permission to use your microphone.
-				recorder.start().then(() => {
-					console.log('then');
-				}).catch((e) => {
-					console.error(e);
-				});
-				 
-				setTimeout(() => {
-					// Once you are done singing your best song, stop and get the mp3.
-					recorder
-					.stop()
-					.getMp3().then(([buffer, blob]) => {
-						console.log(buffer, blob);
-						// do what ever you want with buffer and blob
-						// Example: Create a mp3 file and play
-						const file = new File(buffer, 'me-at-thevoice.mp3', {
-							type: blob.type,
-							lastModified: Date.now()
-						});
-
-						this.$blobToBase64(blob,function(base64url){
-							base64url = base64url.replace('audio/mp3','audio/mpeg');
-							console.log(base64url);
-							this.message.attaches.push(base64url);
-
-							this.$refs.player.src = URL.createObjectURL(base64url);
-							console.log(this.$refs.player.volume);
-							this.$refs.player.play();
-						}.bind(this));
-					 
-						// const player = new Audio(URL.createObjectURL(file));
-						// player.play();
-						// this.client.send(blob);
-
-						// this.$refs.player.src = URL.createObjectURL(file);
-						// console.log(this.$refs.player.volume);
-						// this.$refs.player.play();
-					}).catch((e) => {
-						alert('We could not retrieve your message');
-						console.log(e);
-					});
-				},5000);
+				}, (err) => {
+					this.log(err);
+				}, 10000);
 			},
 			new_message: function(text,user_id){
 				text = text || null;
-				user_id = user_id !== undefined ? user_id : user.id;
+				user_id = user_id !== undefined ? user_id : this.user.id;
 				return {
 					text,
 					attaches: [],
-					user_id: user_id
+					user_id: user_id,
+					time: +(new Date())
 				};
 			},
 			input_area_keydown: function($event) {
 				if($event.ctrlKey && $event.key == 'Enter'){
-					let json = JSON.stringify(this.message);
-					console.log({l:json.length});
-					this.client.send(json);
-					this.message = this.new_message();
+					this.send();
 				}
+			},
+			send: async function() {
+				// console.log(this.message.attaches.map(a => { return {...a}; }));
+				/* TODO: try to send attaches separatly, singed createWriter
+				with https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileEntry/createWriter */
+				// this.message.attaches.forEach(async a => {
+				// 	let signature = a.blob.type.padEnd(32);
+				// 	let singedBlob = signature + a.blob;
+				// 	console.log(
+				// 		signature,
+				// 		singedBlob,
+				// 		a.blob
+				// 	);
+				// 	await this.client.send(singedBlob);
+				// });
+				/*{
+					text: this.message.text,
+					user_id: this.message.user_id
+				}*/
+				let json = JSON.stringify(this.message);
+				this.client.send(json);
+
+				await this.$store.dispatch("SET_MESSAGE", this.new_message());
 			},
 			log: function() {
 				this.messages.push(this.new_message(arguments[0] || null, null));
-				setTimeout(() => {
-					this.$refs.chat_messsages.scrollTop = this.$refs.chat_messsages.scrollHeight;
-				},10);
 			},
 			ws: function () {
 				let app = this;
@@ -186,12 +139,14 @@
 				let W3CWebSocket = require('websocket').w3cwebsocket;
 
 				let client;
-				try { 
-					client = new W3CWebSocket('ws://localhost:8080/', 'echo-protocol');
+				try {
+					let query = this.$buildQueryString({
+						user_id: this.user.id
+					});
+					client = new W3CWebSocket('ws://localhost:8080/?'+query, 'echo-protocol');
 				} catch (e) {
 					app.log(e);
 				}
-
 				client.onerror = function() {
 					app.log('Connection Error');
 				};
@@ -201,55 +156,66 @@
 				client.onclose = function() {
 					app.log('echo-protocol Client Closed');
 				};
+				client.onmessage = (incoming) => {
+					if (typeof incoming.data === 'string') {
+						let message = JSON.parse(incoming.data);
 
-				client.onmessage = function(e) {
-					// console.log(e.data);
+						if(Array.isArray(message)){
+							message.forEach(m => this.messages.push(m));
+							return;
+						}
 
-					if (typeof e.data === 'string') {
-						let obj = JSON.parse(e.data);
-						this.messages.push(obj);
-					} /*else if (e.data instanceof Blob) {
-						let imageBlob = e.data;
-
-						this.$refs.chat_messsages.append(this.$imgFromBlob(imageBlob));
+						if(message.edit){
+							let _message = this.messages.find(m => m.uuid == message.uuid);
+							console.log(_message);
+							_message.text = message.text;
+							message.edit = false;
+						} else {
+							this.messages.push(message);					
+						}
+					} /*else if (incoming.data instanceof Blob) {
+						let blobFromServer = incoming.data;
+						console.log(blobFromServer);
 					}*/
-				}.bind(this);
+				};
 
 				this.client = client;
 			},
 			paste: function(thePasteEvent){
-				let items = thePasteEvent.clipboardData.items;//console.log(items);
+				const items = thePasteEvent.clipboardData.items;
 
 				if(items == undefined){
 					return;
 				};
 
-				for (var i = 0; i < items.length; i++) {
-					// console.log(items[i]);
-					// Skip content if not image
+				for (let i = 0; i < items.length; i++) {
 					if (items[i].type.indexOf("image") == -1){
 						continue;
 					}
-					// Retrieve image on clipboard as blob
-					var blob = items[i].getAsFile();
 
-					this.$blobToBase64(blob,function(base64url){
-						// console.log(base64url);
-						// console.log(blob);
+					const file = items[i].getAsFile();
 
-						// this.client.send(blob);
+					this.$blobToBase64(file, function(base64url){
 						this.message.attaches.push(base64url);
-
-						// console.log(this.message);
 					}.bind(this));
-
 				}
 			}
 		},
-		created: function () {
-			// console.log(user);
-			// console.log(users);
-			// return;
+		computed: {
+			message: function(){ return this.$store.state.message; },
+			user: function(){ return this.$store.state.user; },
+			users: function(){ return this.$store.state.users; }
+		},
+		created: async function () {
+			await this.$store.dispatch("FETCH_USER");
+			await this.$store.dispatch("FETCH_USERS");
+			await this.$store.dispatch("SET_MESSAGE", this.new_message());
+
+			new Vue({
+				render: h => h(Attaches),
+				store: this.$store,
+			}).$mount("#attaches");
+
 			try {
 				this.ws();
 			} catch (e) {

@@ -1,8 +1,18 @@
 <script>
     const dayjs = require('dayjs');
-// let DummyBlob = new Blob(['test text'], {type : 'text/plain'});
+
     export default {
         methods: {
+            $chatTime: function(ms){
+                return dayjs(ms).format('HH:mm:ss');
+            },
+            $buildQueryString: function(params){
+                const esc = encodeURIComponent;
+                const query = Object.keys(params)
+                    .map(k => esc(k) + '=' + esc(params[k]))
+                    .join('&');
+                return query;
+            },
             $imgFromBlob: function(imageBlob) {
                 var canvas = document.createElement("canvas");
                 var ctx = canvas.getContext('2d');
@@ -29,7 +39,7 @@
 
                 return img;
             },
-            b64toBlob: (b64Data, contentType='', sliceSize=512) => {
+            $b64toBlob: (b64Data, contentType='', sliceSize=512) => {
                 const byteCharacters = atob(b64Data);
                 const byteArrays = [];
 

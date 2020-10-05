@@ -28,6 +28,7 @@
         "dayjs": "^1.8.36",
         "mic-recorder-to-mp3": "^2.2.2",
         "socket.io-client": "^2.3.0",
+        "uuid": "^8.3.1",
         "vmsg": "^0.3.6",
         "vue": "^2.6.12",
         "vue-sweetalert2": "^3.0.8",

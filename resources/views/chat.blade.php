@@ -3,12 +3,18 @@
 @section('content')
 <div class="container">
 	<div class="row justify-content-center">
-		<div class="col-md-8">
+		<div class="col-md-12">
 			<div class="card">
 				<div class="card-header">Some header</div>
 
 				<div class="card-body">
 					<div id="chat"></div>
+				</div>
+
+				<div class="card-footer">
+					{{-- <div class="row"> --}}
+						<div id="attaches"></div>
+					{{-- </div> --}}
 				</div>
 			</div>
 		</div>
