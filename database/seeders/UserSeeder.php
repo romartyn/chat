@@ -13,21 +13,21 @@ class UserSeeder extends Seeder
 	 */
 	public function run()
 	{
-		DB::unprepared("TRUNCATE users");
+		// DB::unprepared("TRUNCATE users");
 
 		DB::table('users')->insert([
-			'name' => 'Администратор',
-			'email' => 'romartyn@yandex.ru',
-			'password' => bcrypt('nV9fI6iF4qF7qH7y'),
+			'name' => 'Главный Юзер',
+			'email' => 'first@chat',
+			'password' => bcrypt('111'),
 			'role' => 'super',
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s'),
 		]);
 
 		DB::table('users')->insert([
-			'name' => 'Юзер',
-			'email' => 'info@romartyn.ru',
-			'password' => bcrypt('nV9fI6iF4qF7qH7y'),
+			'name' => 'Второй Юзер',
+			'email' => 'second@chat',
+			'password' => bcrypt('222'),
 			'role' => 'super',
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s'),
