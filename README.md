@@ -3,21 +3,25 @@
 ## Установка
 
 Для работы требуется только установленные PHP (7.3.2) + NODE/NPM (12.16.3/6.14.4).
+
 После клонирования репозитория:
 
-- Создайте файл .env из .env.example.
-- Измените DB_DATABASE на полный абсолютный путь к пустому файлу для хранения базы данных SQLite.
-- Выполните в консоли из директории проекта пкоманды
--- composer install
--- php artisan migrate
--- php artisan db:seed
--- npm i
--- npm run production
-- Для запуска WEB вервера
--- php artisan serve
-- В соседнем окне консоли для запуска WS сервера
--- node resources/js/chat/server.js
-- Далее запустите перейдите в браузере по адресу http://127.0.0.1:8000/ и наслаждайтесь общением.
+<ul>
+	<li>Создайте файл .env из .env.example.</li>
+	<li>Измените DB_DATABASE на полный абсолютный путь к пустому файлу для хранения базы данных SQLite.</li>
+	<li>Выполните в консоли из директории проекта пкоманды
+		<ul>
+			<li>composer install</li>
+			<li>php artisan migrate</li>
+			<li>php artisan db:seed</li>
+			<li>npm i</li>
+			<li>npm run production</li>
+		</ul>
+	</li>
+	<li>Для запуска WEB вервера: php artisan serve</li>
+	<li>В соседнем окне консоли для запуска WS сервера: node resources/js/chat/server.js</li>
+	<li>Далее запустите перейдите в браузере по адресу http://127.0.0.1:8000/ и прробуем общаться</li>
+</ul>
 
 ## Замечания
 
