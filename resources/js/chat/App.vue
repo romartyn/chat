@@ -90,7 +90,7 @@
 					});
 				}, (err) => {
 					this.log(err);
-				}, 10000);
+				}/*, 10000*/);
 			},
 			new_message: function(text,user_id){
 				text = text || null;
